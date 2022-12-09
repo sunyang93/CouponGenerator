@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Index Page";
+}
+<div>
+    
+    <p>
+        本站点用来演示基于RulesEngine和Eval Expression实现的优惠券功能
+    </p>
+    <p>
+        主要功能包括:优惠券规则配置，优惠券生成以及优惠券结算功能
+    </p>
+</div>
+<div>
+    <p class="mb-1">你可以从系统已有的订单开始直接进行优惠券结算<button class="btn btn-sm btn-primary"><i class="bi bi-cash-coin"></i> 结算</button>或者你可以按照完整的流程一步步进行操作</p>
+    <h6><strong>操作流程</strong>:</h6>
+    <div class="position-relative mt-4" style="width:70rem">
+        <div class="progress" style="height: 1px;">
+            <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <button type="button" class="position-absolute top-0 translate-middle btn btn-sm btn-primary" style="width: 10rem; height:2rem;left:5rem">
+            <i class="bi bi-1-circle"></i> 创建优惠券规则
+        </button>
+        <button type="button" class="position-absolute top-0 translate-middle btn btn-sm btn-primary" style="width: 10rem; height:2rem;left:20rem">
+            <i class="bi bi-2-circle"></i> 生成优惠券
+        </button>
+        <button type="button" class="position-absolute top-0 translate-middle btn btn-sm btn-primary" style="width: 10rem; height:2rem;left:35rem">
+            <i class="bi bi-3-circle"></i> 创建商品
+        </button>
+        <button type="button" class="position-absolute top-0 translate-middle btn btn-sm btn-primary" style="width: 10rem; height:2rem;left:50rem">
+            <i class="bi bi-4-circle"></i> 创建订单
+        </button>
+        <button type="button" class="position-absolute top-0 translate-middle btn btn-sm btn-primary" style="width: 10rem; height:2rem;right:-5rem">
+            <i class="bi bi-5-circle"></i> 使用优惠券结算
+        </button>
+    </div>
+</div>
+<div class="mt-4">
+    <h6><strong>数据模型</strong>:</h6>
+</div>

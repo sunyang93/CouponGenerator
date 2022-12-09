@@ -1,0 +1,806 @@
+﻿@using CouponGenerator.Models;
+@using Microsoft.AspNetCore.Html;
+@using NJsonSchema;
+@using NJsonSchema.Generation;
+@using NJsonSchema.Yaml;
+@using Newtonsoft.Json;
+@{
+    ViewData["Title"] = "Coupon Rule Page";
+    JsonSchema schema = JsonSchema.FromType<Order>(new JsonSchemaGeneratorSettings()
+    {
+        SerializerSettings = new JsonSerializerSettings()
+        {
+            ContractResolver = null
+        }
+    });
+    string schemaOutputJson = schema.ToJson();
+    string schemaOutputYaml = schema.ToYaml();
+}
+<link href="~/lib/jointjs/dist/joint.css" rel="stylesheet" />
+<form>
+    <div class="hstack gap-2 p-2 mb-3 rounded-2 border border-1 border-secondary shadow">
+        <div>
+            <h5 class="m-0"><strong>优惠券规则</strong></h5>
+        </div>
+        <div class="ms-auto">
+            <button type="button" class="btn btn-sm btn-primary"><i class="bi bi-check-circle"></i> 验证规则</button>
+        </div>
+        <div class="vr"></div>
+        <div>
+            <button type="submit" class="btn btn-sm btn-primary">提交</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6 mb-1">
+            <div class="p-2 rounded-2 border border-1 border-secondary">
+                <h6>主要信息</h6>
+                <div class="form-floating mb-1">
+                    <input type="text" class="form-control text-primary" placeholder="Leave a comment here" id="ruleName" required>
+                    <label for="ruleName">名称</label>
+                </div>
+                <div class="form-floating mb-1">
+                    <select class="form-select text-primary" id="courtesyCardType">
+                        <option value="1">满减券</option>
+                        <option value="2">折扣券</option>
+                    </select>
+                    <label for="floatingSelect">优惠券类型<i class="bi bi-list-task"></i></label>
+                </div>
+                <div class="form-floating mb-1">
+                    <select class="form-select text-primary" id="targetObject">
+                        <option value="1">订单</option>
+                        <option value="2">店铺</option>
+                        <option value="3">商品</option>
+                    </select>
+                    <label for="floatingSelect">适用对象 <i class="bi bi-list-task"></i></label>
+                </div>
+                <div class="p-2 mb-1 rounded-2 border border-1 border-secondary">
+                    <h6>有效期</h6>
+                    <div class="form-check mb-1">
+                        <input class="form-check-input" type="checkbox" checked id="termOfValidityNoLimit" onchange="termOfValidityChanged(this)">
+                        <label class="form-check-label" for="termOfValidityNoLimit">
+                            无限制 <i class="bi bi-check2-square"></i>
+                        </label>
+                    </div>
+                    <div class="form-floating mb-1">
+                        <div class="input-group">
+                            <input type="number" min="1" class="form-control text-primary term-of-validity" id="termOfValidityLimit" onchange="termOfValidityOnChange()" disabled />
+                            <select class="form-select text-primary term-of-validity" style="max-width:130px" id="termOfValidityLimitType" onchange="termOfValidityOnChange()" disabled>
+                                <option value="Hour">小时 Hour</option>
+                                <option value="Day" selected>天 Day</option>
+                                <option value="Month">月 Month</option>
+                                <option value="Year">年 Year</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1">
+                        <div class="col form-floating">
+                            <input type="date" class="form-control text-primary term-of-validity" placeholder="Leave a comment here" id="termOfValidityBeginTime" onchange="termOfValidityOnChange()" disabled />
+                            <label class="ms-2" for="termOfValidityBeginTime">有效期开始时间</label>
+                        </div>
+                        <div class="col form-floating">
+                            <input type="date" class="form-control text-primary" placeholder="Leave a comment here" id="termOfValidityEndTime" disabled/>
+                            <label class="ms-2" for="termOfValidityEndTime">有效期截止时间</label>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="p-2 rounded-2 border border-1 border-secondary">
+                    <h6>适用时段</h6>
+                    <div class="row mb-1">
+                        <div class="col-6 form-checkd">
+                            <input class="form-check-input" type="checkbox" checked id="timeIntervalNoLimit" onchange="timeIntervalChanged(this)">
+                            <label class="form-check-label" for="timeIntervalNoLimit">
+                                无限制 <i class="bi bi-check2-square"></i>
+                            </label>
+                        </div>
+                        <div class="col-6 d-flex justify-content-end gap-1">
+                            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" href="#monthOfYearCollapse" title="月份">
+                                <i class="bi bi-calendar2-month"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" href="#dayOfWeekCollapse" title="星期">
+                                <i class="bi bi-calendar2-day"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" href="#timeOfDayCollapse" title="小时">
+                                <i class="bi bi-clock"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="monthOfYearCollapse" class="collapse mb-1 p-2 rounded-2 border border-1 border-secondary">
+                        <h6>
+                            月份 <i class="bi bi-calendar2-month"></i>
+                        </h6>
+                        <div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearJanuary" value="1" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearJanuary">
+                                    一月 January
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearFebruary" value="2" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearFebruary">
+                                    二月 February
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearMarch" value="3" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearMarch">
+                                    三月 March
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearApril" value="4" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearApril">
+                                    四月 April
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearMay" value="5" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearMay">
+                                    五月 May
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearJune" value="6" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearJune">
+                                    六月 June
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearJuly" value="7" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearJuly">
+                                    七月 July
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearAugust" value="8" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearAugust">
+                                    八月 August
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearSeptember" value="9" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearSeptember">
+                                    九月 September
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearOctober" value="10" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearOctober">
+                                    十月 October
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearNovember" value="11" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearNovember">
+                                    十一月 November
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval month-of-year" type="checkbox" id="monthOfYearDecember" value="12" onchange="monthOfYearOnChange()" disabled>
+                                <label class="form-check-label" for="monthOfYearDecember">
+                                    十二月 December
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-floating mb-1">
+                            <textarea class="form-control text-primary" placeholder="Leave a comment here" id="monthExpression" readonly></textarea>
+                            <label for="monthExpression">表达式<i class="bi bi-textarea-t"></i></label>
+                        </div>
+                        <div class="mb-1 p-2 rounded-2 text-success alert-success">
+                            <div>
+                                <i class="bi bi-exclamation-circle"></i> 示例
+                            </div>
+                            <ol class="list-group">
+                                <li class="list-group-item p-2 align-items-start text-success bg-transparent">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">每年的8月，9月，10月可用</div>
+                                        <p class="text-break m-0 text-primary">
+                                            DateTime.Now.Month == 8 || DateTime.Now.Month == 9 || DateTime.Now.Month == 10
+                                        </p>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div id="dayOfWeekCollapse" class="collapse show mb-1 p-2 rounded-2 border border-1 border-secondary">
+                        <h6>
+                            星期 <i class="bi bi-calendar2-day"></i>
+                        </h6>
+                        <div>                           
+                            <div class="form-check">
+                                <input class="form-check-input time-interval day-of-week" type="checkbox" id="dayOfWeekMonday" value="Monday" onchange="dayOfWeekOnChange()" disabled>
+                                <label class="form-check-label" for="dayOfWeekMonday">
+                                    周一 Monday
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval day-of-week" type="checkbox" id="dayOfWeekTuesday" value="Tuesday" onchange="dayOfWeekOnChange()" disabled>
+                                <label class="form-check-label" for="dayOfWeekTuesday">
+                                    周二 Tuesday
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval day-of-week" type="checkbox" id="dayOfWeekWednesday" value="Wednesday" onchange="dayOfWeekOnChange()" disabled>
+                                <label class="form-check-label" for="dayOfWeekWednesday">
+                                    周三 Wednesday
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval day-of-week" type="checkbox" id="dayOfWeekThursday" value="Thursday" onchange="dayOfWeekOnChange()" disabled>
+                                <label class="form-check-label" for="dayOfWeekThursday">
+                                    周四 Thursday
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval day-of-week" type="checkbox" id="dayOfWeekFriday" value="Friday" onchange="dayOfWeekOnChange()" disabled>
+                                <label class="form-check-label" for="dayOfWeekFriday">
+                                    周五 Friday
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval day-of-week" type="checkbox" id="dayOfWeekSaturday" value="Saturday" onchange="dayOfWeekOnChange()" disabled>
+                                <label class="form-check-label" for="dayOfWeekSaturday">
+                                    周六 Saturday
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input time-interval day-of-week" type="checkbox" id="dayOfWeekSunday" value="Sunday" onchange="dayOfWeekOnChange()" disabled>
+                                <label class="form-check-label" for="dayOfWeekSunday">
+                                    周日 Sunday
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-floating mb-1">
+                            <textarea class="form-control text-primary" placeholder="Leave a comment here" id="weekExpression" readonly></textarea>
+                            <label for="weekExpression">表达式<i class="bi bi-textarea-t"></i></label>
+                        </div>
+                        <div class="mb-1 p-2 rounded-2 text-success alert-success">
+                            <div>
+                                <i class="bi bi-exclamation-circle"></i> 示例
+                            </div>
+                             <ol class="list-group">
+                                <li class="list-group-item p-2 align-items-start text-success bg-transparent">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">每周的周六，周日可用</div>
+                                        <p class="text-break m-0 text-primary">
+                                            Enum.GetValues&lt;DayOfWeek&gt;().Where(dayOfWeek => dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday).Contains(DateTime.Now.DayOfWeek)
+                                        </p>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                    <div id="timeOfDayCollapse" class="collapse show mb-1 p-2 rounded-2 border border-1 border-secondary">
+                        <h6>
+                            小时 <i class="bi bi-clock"></i>
+                        </h6>
+                        <div class="row">
+                            <div class="col hstack mb-1">
+                                <h6 class="me-1">开始</h6>
+                                <div class="form-floating">
+                                    <input type="number" min="0" max="24" class="form-control text-primary time-interval time-interval-begin" id="timeIntervalBeginHour" value="00" onchange="timeIntervalBeginEndOnChange()" disabled>
+                                    <label for="timeIntervalBeginHour">时</label>
+                                </div>
+                                <div class="form-floating">
+                                    <input type="number" min="0" max="60" class="form-control text-primary time-interval time-interval-begin" id="timeIntervalBeginMinute" value="00" onchange="timeIntervalBeginEndOnChange()" disabled>
+                                    <label for="timeIntervalBeginMinute">分</label>
+                                </div>
+                                <div class="form-floating">
+                                    <input type="number" min="0" max="60" class="form-control text-primary time-interval time-interval-begin" id="timeIntervalBeginSecond" value="00" onchange="timeIntervalBeginEndOnChange()" disabled>
+                                    <label for="timeIntervalBeginSecond">秒</label>
+                                </div>
+                            </div>
+                            <div class="col hstack mb-1">
+                                <h6 class="me-1">截止</h6>
+                                <div class="form-floating">
+                                    <input type="number" min="0" max="24" class="form-control text-primary time-interval time-interval-end" id="timeIntervalEndHour" value="00" onchange="timeIntervalBeginEndOnChange()" disabled>
+                                    <label for="timeIntervalEndHour">时</label>
+                                </div>
+                                <div class="form-floating">
+                                    <input type="number" min="0" max="60" class="form-control text-primary time-interval time-interval-end" id="timeIntervalEndMinute" value="00" onchange="timeIntervalBeginEndOnChange()" disabled>
+                                    <label for="timeIntervalEndMinute">分</label>
+                                </div>
+                                <div class="form-floating">
+                                    <input type="number" min="0" max="60" class="form-control text-primary time-interval time-interval-end" id="timeIntervalEndSecond" value="00" onchange="timeIntervalBeginEndOnChange()" disabled>
+                                    <label for="timeIntervalEndSecond">秒</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-floating mb-1">
+                            <textarea class="form-control text-primary" placeholder="Leave a comment here" id="hourExpression" readonly></textarea>
+                            <label for="hourExpression">表达式<i class="bi bi-textarea-t"></i></label>
+                        </div>
+                        <div class="mb-1 p-2 rounded-2 text-success alert-success">
+                            <div>
+                                <i class="bi bi-exclamation-circle"></i> 示例
+                            </div>
+                            <ol class="list-group">
+                                <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                                    <div class="ms-2 me-auto">
+                                        <div class="fw-bold">每天的18点到22点可用</div>
+                                        <p class="text-break m-0 text-primary">
+                                            DateTime.Now >= DateTime.Parse("18:00:00") && DateTime.Now <= DateTime.Parse("22:00:00")
+                                        </p>
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="p-2 mb-1 rounded-2 border border-1 border-secondary">
+                <div class="row">
+                    <div class="col-6 pt-2">
+                        <h6>规则配置</h6>
+                    </div>
+                    <div class="col-6 justify-content-end hstack gap-1">
+                        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" href="#jsonSchemaCollapse" title="Schema">
+                            <i class="bi bi-braces-asterisk"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightUML" title="依赖关系图">
+                            <i class="bi bi-diagram-3"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="jsonSchemaCollapse" class="collapse p-2 mb-1 rounded-2 border border-1 border-secondary">
+                    <div class="row">
+                        <div class="col-6 pt-2">
+                            <a class="link-primary" href="https://json-schema.org/" target="_blank">JSON Schema</a>
+                        </div>
+                        <div class="col-6 justify-content-end hstack gap-1">
+                            <label>输出格式</label>
+                            <select class="form-select p-1" style="width:100px" onchange="jsonSchemaOutputFormatterChange(this)">
+                                <option value="YAML">YAML</option>
+                                <option value="JSON">JSON</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="jsonSchemaJson" class="w-100" style="height:500px;display:none">@schemaOutputJson</div>
+                    <div id="jsonSchemaYaml" class="w-100" style="height:500px">@schemaOutputYaml</div>
+                </div>
+                <div class="form-floating mb-1">
+                    <input type="text" class="form-control text-primary" value="@schema.Title" placeholder="Leave a comment here" id="ruleParameter" required>
+                    <label for="ruleParameter">参数</label>
+                </div>
+                <div class="p-2 mb-1 rounded-2 border border-1 border-secondary">
+                    <h6><strong>@schema.Description @schema.Title</strong></h6>
+                    @foreach (var property in schema.Properties)
+                    {
+                        <div class="input-group mb-1">
+                            <span class="input-group-text">
+                                @property.Value.Description<span class="badge bg-secondary ms-1">@property.Value.Type.ToString().ToLower()</span>
+                            </span>
+                            <input type="text" class="form-control" value="@property.Key" readonly>
+                            <button class="btn btn-outline-secondary" type="button" onclick="copyPropertyName(this)" title="Copy"><i class="bi bi-files"></i></button>
+                        </div>
+                    }
+                    @foreach (var definition in schema.Definitions)
+                    {
+                        <h6><strong>@definition.Value.Description @definition.Key</strong></h6>
+                        @foreach (var property in definition.Value.Properties)
+                        {
+                            <div class="input-group mb-1">
+                                <span class="input-group-text">
+                                    @property.Value.Description
+                                    @if (property.Value.HasOneOfSchemaReference)
+                                    {
+                                        <span class="badge bg-secondary ms-1">object</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary ms-1">@property.Value.Type.ToString().ToLower()</span>
+                                    }
+                                </span>
+                                <input type="text" class="form-control" value="@property.Key" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyPropertyName(this)" title="Copy"><i class="bi bi-files"></i></button>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="form-floating mb-1">
+                    <textarea rows="10" class="form-control text-primary" placeholder="Leave a comment here" id="ruleDescription"></textarea>
+                    <label for="ruleExplain">规则描述 <i class="bi bi-textarea-t"></i></label>
+                </div>
+                <div class="form-floating mb-1">
+                    <textarea class="form-control text-primary" placeholder="Leave a comment here" id="ruleExpression" required></textarea>
+                    <label for="ruleExplain">规则表达式<i class="bi bi-textarea-t"></i></label>
+                </div>
+                <div class="mb-1 p-2 rounded-2 text-success alert-success">
+                    <div>
+                        <i class="bi bi-exclamation-circle"></i> 示例
+                    </div>
+                    <ol class="list-group">
+                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">订单消费金额满300</div>
+                                <p class="text-break m-0 text-primary">
+                                    Order.TotalPrice >= 300
+                                </p>
+                            </div>
+                        </li>
+                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">在'Store-A'店铺消费金额满200</div>
+                                <p class="text-break m-0 text-primary">
+                                    Order.Items.Where(d => d.Product.StoreCode == "Store-A").Sum(TotalPrice) >= 200
+                                </p>
+                            </div>
+                        </li>
+                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">购买'Product-A'商品满2件</div>
+                                <p class="text-break m-0 text-primary">
+                                    Order.Items.Where(d => d.Product.ProductCode == "Product-A").Sum(Quantity) >= 2
+                                </p>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+                <div class="form-floating mb-1">
+                    <textarea class="form-control text-primary" placeholder="Leave a comment here" id="evalExpression" required></textarea>
+                    <label for="ruleExplain">计算表达式<i class="bi bi-textarea-t"></i></label>
+                </div>
+                <div class="mb-1 p-2 rounded-2 text-success alert-success">
+                    <div>
+                        <i class="bi bi-exclamation-circle"></i> 示例
+                    </div>
+                    <ol class="list-group">
+                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">订单打8折</div>
+                                <p class="text-break m-0 text-primary">
+                                    Order.TotalPrice * 0.8
+                                </p>
+                            </div>
+                        </li>
+                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">在'Store-A'店铺消费减10</div>
+                                <p class="text-break m-0 text-primary">
+                                    Order.TotalPrice - 10
+                                </p>
+                            </div>
+                        </li>
+                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">购买'Product-A'商品打8折</div>
+                                <p class="text-break m-0 text-primary">
+                                    Order.TotalPrice - Order.Items.Where(d => d.Product.ProductCode == "Product-A").Sum(TotalPrice) * 0.8
+                                </p>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<!-- UML Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRightUML" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasRightLabel">依赖关系图</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="paper" class="w-100 h-100"></div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/moment/moment.js"></script>
+<script src="~/lib/ace/ace.js"></script>
+<script src="~/lib/lodash.js/lodash.js"></script>
+<script src="~/lib/backbone/backbone.js"></script>
+<script src="~/lib/jointjs/dist/joint.js"></script>
+<script>
+    "use strict";
+
+    var graph = new joint.dia.Graph();
+    let divWidth = document.getElementById('paper').clientWidth;
+    let divHeight = document.getElementById('paper').clientHeight;
+    new joint.dia.Paper({
+        el: document.getElementById('paper'),
+        width: divWidth,
+        height: divHeight,
+        gridSize: 10,
+        drawGrid: true,
+        model: graph
+    });
+
+    var uml = joint.shapes.uml;
+
+    var classes = {
+        order: new uml.Class({
+            position: { x: 100, y: 100 },
+            size: { width: 200, height: 100 },
+            name: 'Order 订单',
+            attributes: ['OrderNo: string 订单编号', 'TotalPrice: number 订单编号', 'Items: array 订单项'],
+            attrs: {
+                '.uml-class-name-rect': {
+                    fill: '#68ddd5',
+                    stroke: '#ffffff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-attrs-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-methods-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-methods-text': {
+                    fill: '#fff'
+                },
+                '.uml-class-attrs-text': {
+                    'ref-y': 0.5,
+                    'y-alignment': 'middle'
+                }
+            }
+        }),
+
+        orderItem: new uml.Class({
+            position: { x: 100, y: 300 },
+            size: { width: 200, height: 100 },
+            name: 'OrderItem 订单项',
+            attributes: ['Product: object 商品', 'Quantity: number 数量', 'TotalPrice: number 总价'],
+            methods: [],
+            attrs: {
+                '.uml-class-name-rect': {
+                    fill: '#68ddd5',
+                    stroke: '#ffffff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-attrs-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-methods-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-attrs-text': {
+                    'ref-y': 0.5,
+                    'y-alignment': 'middle'
+                }
+            }
+
+        }),
+
+        product: new uml.Class({
+            position: { x: 100, y: 500 },
+            size: { width: 200, height: 100 },
+            name: 'Product 商品',
+            attributes: ['ProductCode: string 产品编码', 'StoreCode: string 店铺编码', 'Price: number 单价'],
+            attrs: {
+                '.uml-class-name-rect': {
+                    fill: '#68ddd5',
+                    stroke: '#ffffff',
+                    'stroke-width': 0.5,
+                },
+                '.uml-class-attrs-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-methods-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-attrs-text': {
+                    ref: '.uml-class-attrs-rect',
+                    'ref-y': 0.5,
+                    'y-alignment': 'middle'
+                },
+                '.uml-class-methods-text': {
+                    ref: '.uml-class-methods-rect',
+                    'ref-y': 0.5,
+                    'y-alignment': 'middle'
+                }
+            }
+        }),
+    };
+
+    Object.keys(classes).forEach(function (key) {
+        graph.addCell(classes[key]);
+    });
+
+    var relations = [
+        new uml.Aggregation({ source: { id: classes.order.id }, target: { id: classes.orderItem.id } }),
+        new uml.Composition({ source: { id: classes.orderItem.id }, target: { id: classes.product.id } })
+    ];
+
+    Object.keys(relations).forEach(function (key) {
+        graph.addCell(relations[key]);
+    });
+</script>
+<script>
+    "use strict";
+
+    var jsonEditor = ace.edit("jsonSchemaJson");
+    // use setOptions method to set several options at once
+    jsonEditor.setOptions({
+        autoScrollEditorIntoView: true,
+        copyWithEmptySelection: true,
+    });
+    jsonEditor.setTheme("ace/theme/monokai");
+    jsonEditor.session.setMode("ace/mode/json");
+
+    var yamlEditor = ace.edit("jsonSchemaYaml");
+    // use setOptions method to set several options at once
+    yamlEditor.setOptions({
+        autoScrollEditorIntoView: true,
+        copyWithEmptySelection: true,
+    });
+    yamlEditor.setTheme("ace/theme/monokai");
+    yamlEditor.session.setMode("ace/mode/yaml");
+  
+    function termOfValidityChanged(e){
+        var controls = $(".term-of-validity");
+        if(e.checked){
+            for(let i=0;i<controls.length;i++){
+                controls[i].setAttribute('disabled', 'disabled');
+            }
+        }else{
+            for (let i = 0; i < controls.length; i++) {
+                controls[i].removeAttribute('disabled');
+            }
+        }
+    }
+
+    function termOfValidityOnChange(){
+        let termOfValidityLimit = $("#termOfValidityLimit").val().trim();
+        let termOfValidityLimitType = $("#termOfValidityLimitType").val();
+        if(termOfValidityLimitType==="Hour"){
+            $("#termOfValidityBeginTime").attr("type","datetime-local")
+            $("#termOfValidityEndTime").attr("type","datetime-local")
+        }
+        else if(termOfValidityLimitType==="Day"){
+            $("#termOfValidityBeginTime").attr("type", "date");
+            $("#termOfValidityEndTime").attr("type", "date");
+        }
+        else if(termOfValidityLimitType==="Month"){
+            $("#termOfValidityBeginTime").attr("type","date");
+            $("#termOfValidityEndTime").attr("type", "date");
+        }
+        else if (termOfValidityLimitType === "Year") {
+            $("#termOfValidityBeginTime").attr("type","date");
+            $("#termOfValidityEndTime").attr("type", "date");
+        }
+        let termOfValidityBeginTime = $("#termOfValidityBeginTime").val().trim();
+        if (termOfValidityLimit !== "" &&termOfValidityBeginTime !=="") {
+            let termOfValidityLimitValue=parseFloat(termOfValidityLimit);
+            if(termOfValidityLimitValue>0){
+                let termOfValidityEndTime = moment(termOfValidityBeginTime);
+                if (termOfValidityLimitType === "Hour") {
+                    termOfValidityEndTime.add(termOfValidityLimitValue, 'hours');
+                    $("#termOfValidityEndTime").val(termOfValidityEndTime.format('yyyy-MM-DDThh:mm:ss'));
+                }
+                else if (termOfValidityLimitType === "Day") {
+                   termOfValidityEndTime.add(termOfValidityLimitValue, 'days');
+                    $("#termOfValidityEndTime").val(termOfValidityEndTime.format('yyyy-MM-DD'));
+                }
+                else if (termOfValidityLimitType === "Month") {
+                    termOfValidityEndTime.add(termOfValidityLimitValue, 'months');
+                    $("#termOfValidityEndTime").val(termOfValidityEndTime.format('yyyy-MM-DD'));
+                }
+                else if (termOfValidityLimitType === "Year") {
+                    termOfValidityEndTime.add(termOfValidityLimitValue, 'years');
+                    $("#termOfValidityEndTime").val(termOfValidityEndTime.format('yyyy-MM-DD'));
+                }
+            }
+            else{
+                $("#termOfValidityEndTime").val('');
+            }
+        }
+    }
+
+    function monthOfYearOnChange(){
+        let controls = $(".month-of-year");
+        let monthOfYears = [];
+        for(let i=0;i<controls.length;i++){
+            if(controls[i].checked){
+                monthOfYears.push(`DateTime.Now.Month == ${controls[i].value}`);
+            }
+        }
+        console.log(monthOfYears);
+        if(monthOfYears.length==0 || monthOfYears.length==12)
+            $("#monthExpression").val('');
+        else
+            $("#monthExpression").val(`${monthOfYears.join(' || ')}`);
+    }
+
+    function dayOfWeekOnChange() {
+        let controls = $(".day-of-week");
+        let dayOfWeeks=[];
+        for(let i=0;i<controls.length;i++){
+            if(controls[i].checked){
+                dayOfWeeks.push(`dayOfWeek == DayOfWeek.${controls[i].value}`);
+            }
+        }
+        console.log(dayOfWeeks);
+        if(dayOfWeeks==0 || dayOfWeeks.length==7)
+            $("#weekExpression").val('');
+        else
+            $("#weekExpression").val(`Enum.GetValues<DayOfWeek>().Where(dayOfWeek => ${dayOfWeeks.join(' || ')}).Contains(DateTime.Now.DayOfWeek)`);
+    }
+
+    function timeIntervalBeginEndOnChange(){
+        let controlsBegin = $(".time-interval-begin");
+        let beginValues=[];
+        for(let i=0;i<controlsBegin.length;i++){
+            const beginValue=parseInt(controlsBegin[i].value);
+            if(beginValue<10){
+                beginValues.push(`0${beginValue}`);
+            }else{
+                beginValues.push(beginValue);
+            }
+        }
+        console.log(beginValues);
+        let controlsEnd = $(".time-interval-end");
+        let endValues=[];
+        for (let i = 0; i < controlsEnd.length; i++) {
+            const endValue = parseInt(controlsEnd[i].value);
+            if(endValue<10){
+                endValues.push(`0${endValue}`);
+            }else{
+                endValues.push(endValue);
+            }
+        }
+        console.log(endValues);
+        let begin=beginValues.join(':');
+        let end=endValues.join(':');
+        if(begin==="00:00:00"){
+            if(end!=="00:00:00"){
+                $("#hourExpression").val(`DateTime.Now <= DateTime.Parse("${end}")`);
+            }
+            else{
+                $("#hourExpression").val('');
+            }
+        }
+        else{
+            if (end === "00:00:00") {
+                $("#hourExpression").val(`DateTime.Now >= DateTime.Parse("${begin}")`);
+            }else{
+                $("#hourExpression").val(`DateTime.Now >= DateTime.Parse("${begin}") && DateTime.Now <= DateTime.Parse("${end}")`);
+            }
+        }             
+    }
+
+    function timeIntervalChanged(e){
+        var controls = $(".time-interval");
+        if(e.checked){
+            for(let i=0;i<controls.length;i++){
+                controls[i].setAttribute('disabled', 'disabled');
+            }
+        }else{
+            for (let i = 0; i < controls.length; i++) {
+                controls[i].removeAttribute('disabled');
+            }
+        }
+    }
+
+    function jsonSchemaOutputFormatterChange(e){
+        let formatter = $(e).val();
+        if(formatter==="YAML"){
+            $("#jsonSchemaJson").hide();
+            $("#jsonSchemaYaml").show();
+        }
+        else if(formatter==="JSON"){
+            $("#jsonSchemaYaml").hide();
+            $("#jsonSchemaJson").show();
+        }
+    }
+
+    function copyPropertyName(e) {
+        $($(e).parent().children()[1]).select();
+        document.execCommand("Copy");
+    }
+</script>

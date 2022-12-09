@@ -1,0 +1,65 @@
+{
+  "version": "1.0",
+  "defaultProvider": "unpkg",
+  "libraries": [
+    {
+      "library": "bootstrap-icons@1.10.2",
+      "destination": "wwwroot/lib/bootstrap-icons/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "ace@1.13.1",
+      "destination": "wwwroot/lib/ace/"
+    },
+    {
+      "library": "jointjs@3.5.5",
+      "destination": "wwwroot/lib/jointjs/",
+      "files": [
+        "dist/geometry.js",
+        "dist/geometry.min.js",
+        "dist/joint.core.css",
+        "dist/joint.core.js",
+        "dist/joint.core.min.css",
+        "dist/joint.core.min.js",
+        "dist/joint.css",
+        "dist/joint.d.ts",
+        "dist/joint.js",
+        "dist/joint.layout.DirectedGraph.js",
+        "dist/joint.layout.DirectedGraph.min.js",
+        "dist/joint.min.css",
+        "dist/joint.min.js",
+        "dist/joint.nowrap.js",
+        "dist/joint.nowrap.min.js",
+        "dist/joint.shapes.chess.js",
+        "dist/joint.shapes.chess.min.js",
+        "dist/joint.shapes.devs.js",
+        "dist/joint.shapes.devs.min.js",
+        "dist/joint.shapes.erd.js",
+        "dist/joint.shapes.erd.min.js",
+        "dist/joint.shapes.fsa.js",
+        "dist/joint.shapes.fsa.min.js",
+        "dist/joint.shapes.logic.js",
+        "dist/joint.shapes.logic.min.js",
+        "dist/joint.shapes.org.js",
+        "dist/joint.shapes.org.min.js",
+        "dist/joint.shapes.pn.js",
+        "dist/joint.shapes.pn.min.js",
+        "dist/joint.shapes.uml.js",
+        "dist/joint.shapes.uml.min.js",
+        "dist/vectorizer.js",
+        "dist/vectorizer.min.js",
+        "dist/version.mjs"
+      ]
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "backbone@1.4.1",
+      "destination": "wwwroot/lib/backbone/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "lodash.js@4.17.21",
+      "destination": "wwwroot/lib/lodash.js/"
+    }
+  ]
+}

@@ -1,0 +1,299 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>CouponGenerator</name>
+    </assembly>
+    <members>
+        <member name="T:CouponGenerator.Controllers.CouponController">
+            <summary>
+            优惠券
+            </summary>
+        </member>
+        <member name="M:CouponGenerator.Controllers.CouponController.Index">
+            <summary>
+            首页
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:CouponGenerator.Controllers.CouponController.Rule">
+            <summary>
+            优惠券规则
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:CouponGenerator.Data.CouponRule">
+            <summary>
+            优惠券规则
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.Name">
+            <summary>
+            规则名称
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.CouponRuleType">
+            <summary>
+            券的类型
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.TargetObject">
+            <summary>
+            适用的对象
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.TermOfValidity">
+            <summary>
+            有效期
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.Parameter">
+            <summary>
+            规则参数
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.Description">
+            <summary>
+            规则描述
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.Expression">
+            <summary>
+            规则表达式
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.EvalExpression">
+            <summary>
+            计算表达式
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.RuleExpression">
+            <summary>
+            规则表达式(RulesEngine)
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.Data.CouponRuleType">
+            <summary>
+            券的类型
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.Data.CouponRuleType.FullCouponReduction">
+            <summary>
+            满减券
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.Data.CouponRuleType.DiscountCoupon">
+            <summary>
+            折扣券
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.Data.TargetObject">
+            <summary>
+            适用的对象
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.Data.TargetObject.Order">
+            <summary>
+            订单
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.Data.TargetObject.Store">
+            <summary>
+            店铺
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.Data.TargetObject.Product">
+            <summary>
+            产品
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.Data.TermOfValidity">
+            <summary>
+            有效期
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TermOfValidity.NoLimit">
+            <summary>
+            无限制
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TermOfValidity.Duration">
+            <summary>
+            有效时长
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TermOfValidity.TermOfValidityUnit">
+            <summary>
+            有效期单位
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TermOfValidity.TermOfValidityBeginTime">
+            <summary>
+            有效期开始时间
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.Data.TermOfValidityUnit">
+            <summary>
+            有效期单位
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.Data.TermOfValidityUnit.Hour">
+            <summary>
+            小时
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.Data.TermOfValidityUnit.Day">
+            <summary>
+            天
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.Data.TermOfValidityUnit.Month">
+            <summary>
+            月份
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.Data.TermOfValidityUnit.Year">
+            <summary>
+            年
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.Data.TimeInterval">
+            <summary>
+            适用的时段
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TimeInterval.NoLimit">
+            <summary>
+            无限制
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TimeInterval.Months">
+            <summary>
+            月份
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TimeInterval.Weeks">
+            <summary>
+            星期
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TimeInterval.TimeBegin">
+            <summary>
+            开始时间
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TimeInterval.TimeEnd">
+            <summary>
+            截止时间
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.Data.TimeIntervalTime">
+            <summary>
+            时间
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TimeIntervalTime.Hour">
+            <summary>
+            时
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TimeIntervalTime.Minute">
+            <summary>
+            分
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.TimeIntervalTime.Second">
+            <summary>
+            秒
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.JsonSchemas">
+            <summary>
+            JSON Schema
+            </summary>
+        </member>
+        <member name="M:CouponGenerator.JsonSchemas.GenerateJsonSchema``1(CouponGenerator.JsonSchemaOutputFormatter,Newtonsoft.Json.JsonSerializerSettings)">
+            <summary>
+            生成JSON Schema文档
+            </summary>
+            <typeparam name="T">类型</typeparam>
+            <param name="jsonSchemaOutputFormatter">JSON Schema文档输出格式</param>
+            <param name="jsonSerializerSettings">JSON序列号设置</param>
+            <returns></returns>
+        </member>
+        <member name="T:CouponGenerator.JsonSchemaOutputFormatter">
+            <summary>
+            JSON Schema文档输出格式
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.JsonSchemaOutputFormatter.JSON">
+            <summary>
+            Json格式
+            </summary>
+        </member>
+        <member name="F:CouponGenerator.JsonSchemaOutputFormatter.YAML">
+            <summary>
+            Yaml格式
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.Models.Order">
+            <summary>
+            订单
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Models.Order.OrderNo">
+            <summary>
+            订单编号
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Models.Order.TotalPrice">
+            <summary>
+            总价
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Models.Order.Items">
+            <summary>
+            订单项
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.Models.OrderItem">
+            <summary>
+            订单项
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Models.OrderItem.Product">
+            <summary>
+            商品
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Models.OrderItem.Quantity">
+            <summary>
+            数量
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Models.OrderItem.TotalPrice">
+            <summary>
+            总价
+            </summary>
+        </member>
+        <member name="T:CouponGenerator.Models.Product">
+            <summary>
+            商品
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Models.Product.ProductCode">
+            <summary>
+            产品编码
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Models.Product.StoreCode">
+            <summary>
+            店铺编码
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Models.Product.Price">
+            <summary>
+            单价
+            </summary>
+        </member>
+    </members>
+</doc>

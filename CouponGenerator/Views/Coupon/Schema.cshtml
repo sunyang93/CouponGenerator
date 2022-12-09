@@ -1,0 +1,141 @@
+﻿<link href="~/lib/jointjs/dist/joint.css" rel="stylesheet" />
+<button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">Toggle right offcanvas</button>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasRightLabel">Offcanvas right</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="paper" class="w-100 h-100"></div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/lodash.js/lodash.js"></script>
+<script src="~/lib/backbone/backbone.js"></script>
+<script src="~/lib/jointjs/dist/joint.js"></script>
+<script>
+    var graph = new joint.dia.Graph();
+    let divWidth = document.getElementById('paper').clientWidth;
+    let divHeight = document.getElementById('paper').clientHeight;
+    new joint.dia.Paper({
+        el: document.getElementById('paper'),
+        width: divWidth,
+        height: divHeight,
+        gridSize: 10,
+        drawGrid: true,
+        model: graph
+    });
+
+    var uml = joint.shapes.uml;
+
+    var classes = {
+        order: new uml.Class({
+            position: { x: 100, y: 100 },
+            size: { width: 200, height: 100 },
+            name: 'Order 订单',
+            attributes: ['OrderNo: string 订单编号', 'TotalPrice: number 订单编号', 'Items: array 订单项'],
+            attrs: {
+                '.uml-class-name-rect': {
+                    fill: '#68ddd5',
+                    stroke: '#ffffff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-attrs-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-methods-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-methods-text': {
+                    fill: '#fff'
+                },
+                '.uml-class-attrs-text': {
+                    'ref-y': 0.5,
+                    'y-alignment': 'middle'
+                }
+            }
+        }),
+
+        orderItem: new uml.Class({
+            position: { x: 100, y:300 },
+            size: { width: 200, height: 100 },
+            name: 'OrderItem 订单项',
+            attributes: ['Product: object 商品', 'Quantity: number 数量', 'TotalPrice: number 总价'],
+            methods: [],
+            attrs: {
+                '.uml-class-name-rect': {
+                    fill: '#68ddd5',
+                    stroke: '#ffffff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-attrs-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-methods-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-attrs-text': {
+                    'ref-y': 0.5,
+                    'y-alignment': 'middle'
+                }
+            }
+
+        }),
+
+        product: new uml.Class({
+            position: { x: 100, y: 500 },
+            size: { width: 200, height: 100 },
+            name: 'Product 商品',
+            attributes: ['ProductCode: string 产品编码', 'StoreCode: string 店铺编码', 'Price: number 单价'],
+            attrs: {
+                '.uml-class-name-rect': {
+                    fill: '#68ddd5',
+                    stroke: '#ffffff',
+                    'stroke-width': 0.5,
+                },
+                '.uml-class-attrs-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-methods-rect': {
+                    fill: '#9687fe',
+                    stroke: '#fff',
+                    'stroke-width': 0.5
+                },
+                '.uml-class-attrs-text': {
+                    ref: '.uml-class-attrs-rect',
+                    'ref-y': 0.5,
+                    'y-alignment': 'middle'
+                },
+                '.uml-class-methods-text': {
+                    ref: '.uml-class-methods-rect',
+                    'ref-y': 0.5,
+                    'y-alignment': 'middle'
+                }
+            }
+        }),
+    };
+
+    Object.keys(classes).forEach(function (key) {
+        graph.addCell(classes[key]);
+    });
+
+    var relations = [
+        new uml.Aggregation({ source: { id: classes.order.id }, target: { id: classes.orderItem.id } }),
+        new uml.Composition({ source: { id: classes.orderItem.id }, target: { id: classes.product.id } })
+    ];
+
+    Object.keys(relations).forEach(function (key) {
+        graph.addCell(relations[key]);
+    });
+</script>
