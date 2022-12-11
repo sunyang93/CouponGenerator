@@ -12,6 +12,8 @@
     <PackageReference Include="NJsonSchema" Version="10.8.0" />
     <PackageReference Include="NJsonSchema.Yaml" Version="10.8.0" />
     <PackageReference Include="RulesEngine" Version="4.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="6.4.0" />
     <PackageReference Include="Z.Expressions.Eval" Version="4.0.91" />
   </ItemGroup>
 

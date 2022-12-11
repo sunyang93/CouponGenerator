@@ -39,6 +39,10 @@
                     <label for="ruleName">名称</label>
                 </div>
                 <div class="form-floating mb-1">
+                    <textarea rows="10" class="form-control text-primary" placeholder="Leave a comment here" id="explain" required></textarea>
+                    <label for="explain">描述 <i class="bi bi-textarea-t"></i></label>
+                </div>
+                <div class="form-floating mb-1">
                     <select class="form-select text-primary" id="courtesyCardType">
                         <option value="1">满减券</option>
                         <option value="2">折扣券</option>
@@ -52,6 +56,10 @@
                         <option value="3">商品</option>
                     </select>
                     <label for="floatingSelect">适用对象 <i class="bi bi-list-task"></i></label>
+                </div>
+                <div class="form-floating mb-1">
+                    <input type="text" class="form-control text-primary" placeholder="Leave a comment here" id="targetObjectCode">
+                    <label for="targetObjectCode">适用对象的编码</label>
                 </div>
                 <div class="p-2 mb-1 rounded-2 border border-1 border-secondary">
                     <h6>有效期</h6>
@@ -337,8 +345,11 @@
                         <h6>规则配置</h6>
                     </div>
                     <div class="col-6 justify-content-end hstack gap-1">
-                        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" href="#jsonSchemaCollapse" title="Schema">
+                        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" href="#jsonSchemaCollapse" title="JSON Schema">
                             <i class="bi bi-braces-asterisk"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" href="#xmlSchemaCollapse" title="XSD">
+                            <i class="bi bi-code-slash"></i>
                         </button>
                         <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRightUML" title="依赖关系图">
                             <i class="bi bi-diagram-3"></i>
@@ -360,6 +371,12 @@
                     </div>
                     <div id="jsonSchemaJson" class="w-100" style="height:500px;display:none">@schemaOutputJson</div>
                     <div id="jsonSchemaYaml" class="w-100" style="height:500px">@schemaOutputYaml</div>
+                </div>
+                <div id="xmlSchemaCollapse" class="collapse p-2 mb-1 rounded-2 border border-1 border-secondary">
+                    <div class="row">
+                        <a class="link-primary" href="https://www.w3schools.com/xml/schema_intro.asp" target="_blank">XSD</a>
+                    </div>
+                    <div id="xmlSchema" class="w-100" style="height:500px">@ViewBag.XmlSchema</div>
                 </div>
                 <div class="form-floating mb-1">
                     <input type="text" class="form-control text-primary" value="@schema.Title" placeholder="Leave a comment here" id="ruleParameter" required>
@@ -401,12 +418,8 @@
                     }
                 </div>
                 <div class="form-floating mb-1">
-                    <textarea rows="10" class="form-control text-primary" placeholder="Leave a comment here" id="ruleDescription"></textarea>
-                    <label for="ruleExplain">规则描述 <i class="bi bi-textarea-t"></i></label>
-                </div>
-                <div class="form-floating mb-1">
-                    <textarea class="form-control text-primary" placeholder="Leave a comment here" id="ruleExpression" required></textarea>
-                    <label for="ruleExplain">规则表达式<i class="bi bi-textarea-t"></i></label>
+                    <textarea class="form-control text-primary" placeholder="Leave a comment here" id="conditionExpression" required></textarea>
+                    <label for="conditionExpression">条件表达式<i class="bi bi-textarea-t"></i></label>
                 </div>
                 <div class="mb-1 p-2 rounded-2 text-success alert-success">
                     <div>
@@ -513,7 +526,7 @@
 
     var classes = {
         order: new uml.Class({
-            position: { x: 100, y: 100 },
+            position: { x: 100, y: 50 },
             size: { width: 200, height: 100 },
             name: 'Order 订单',
             attributes: ['OrderNo: string 订单编号', 'TotalPrice: number 订单编号', 'Items: array 订单项'],
@@ -544,7 +557,7 @@
         }),
 
         orderItem: new uml.Class({
-            position: { x: 100, y: 300 },
+            position: { x: 100, y: 250 },
             size: { width: 200, height: 100 },
             name: 'OrderItem 订单项',
             attributes: ['Product: object 商品', 'Quantity: number 数量', 'TotalPrice: number 总价'],
@@ -574,7 +587,7 @@
         }),
 
         product: new uml.Class({
-            position: { x: 100, y: 500 },
+            position: { x: 100, y: 450 },
             size: { width: 200, height: 100 },
             name: 'Product 商品',
             attributes: ['ProductCode: string 产品编码', 'StoreCode: string 店铺编码', 'Price: number 单价'],
@@ -641,6 +654,15 @@
     });
     yamlEditor.setTheme("ace/theme/monokai");
     yamlEditor.session.setMode("ace/mode/yaml");
+
+    var xmlEditor = ace.edit("xmlSchema");
+    // use setOptions method to set several options at once
+    xmlEditor.setOptions({
+        autoScrollEditorIntoView: true,
+        copyWithEmptySelection: true,
+    });
+    xmlEditor.setTheme("ace/theme/monokai");
+    xmlEditor.session.setMode("ace/mode/xml");
   
     function termOfValidityChanged(e){
         var controls = $(".term-of-validity");

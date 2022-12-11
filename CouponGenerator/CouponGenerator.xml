@@ -21,6 +21,11 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:CouponGenerator.Controllers.CouponsController">
+            <summary>
+            优惠券
+            </summary>
+        </member>
         <member name="T:CouponGenerator.Data.CouponRule">
             <summary>
             优惠券规则
@@ -28,7 +33,12 @@
         </member>
         <member name="P:CouponGenerator.Data.CouponRule.Name">
             <summary>
-            规则名称
+            名称
+            </summary>
+        </member>
+        <member name="P:CouponGenerator.Data.CouponRule.Explain">
+            <summary>
+            描述
             </summary>
         </member>
         <member name="P:CouponGenerator.Data.CouponRule.CouponRuleType">
@@ -41,6 +51,11 @@
             适用的对象
             </summary>
         </member>
+        <member name="P:CouponGenerator.Data.CouponRule.TargetObjectCode">
+            <summary>
+            适用对象的编码
+            </summary>
+        </member>
         <member name="P:CouponGenerator.Data.CouponRule.TermOfValidity">
             <summary>
             有效期
@@ -51,14 +66,9 @@
             规则参数
             </summary>
         </member>
-        <member name="P:CouponGenerator.Data.CouponRule.Description">
+        <member name="P:CouponGenerator.Data.CouponRule.ConditionExpression">
             <summary>
-            规则描述
-            </summary>
-        </member>
-        <member name="P:CouponGenerator.Data.CouponRule.Expression">
-            <summary>
-            规则表达式
+            条件表达式
             </summary>
         </member>
         <member name="P:CouponGenerator.Data.CouponRule.EvalExpression">

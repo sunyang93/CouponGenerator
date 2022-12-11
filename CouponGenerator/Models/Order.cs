@@ -53,16 +53,16 @@ namespace CouponGenerator.Models
         /// <summary>
         /// 产品编码
         /// </summary>
-        public string ProductCode { get; private set; } = null!;
+        public string ProductCode { get; set; } = null!;
 
         /// <summary>
         /// 店铺编码
         /// </summary>
-        public string StoreCode { get; private set; } = null!;
+        public string StoreCode { get; set; } = null!;
 
         /// <summary>
         /// 单价
         /// </summary>
-        public decimal Price { get; private set; }
+        public decimal Price { get; set; }
     }
 }

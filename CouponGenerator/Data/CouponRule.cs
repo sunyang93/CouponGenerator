@@ -8,9 +8,14 @@ namespace CouponGenerator.Data
     public class CouponRule
     {
         /// <summary>
-        /// 规则名称
+        /// 名称
         /// </summary>
         public string Name { get; set; } = null!;
+
+        /// <summary>
+        /// 描述
+        /// </summary>
+        public string Explain { get; set; } = null!;
 
         /// <summary>
         /// 券的类型
@@ -23,6 +28,11 @@ namespace CouponGenerator.Data
         public TargetObject TargetObject { get; set; }
 
         /// <summary>
+        /// 适用对象的编码
+        /// </summary>
+        public string? TargetObjectCode { get; set; }
+
+        /// <summary>
         /// 有效期
         /// </summary>
         public TermOfValidity TermOfValidity { get; set; } = null!;
@@ -33,24 +43,14 @@ namespace CouponGenerator.Data
         public string Parameter { get; set; } = null!;
 
         /// <summary>
-        /// 规则描述
+        /// 条件表达式
         /// </summary>
-        public string Description { get; set; } = null!;
-
-        /// <summary>
-        /// 规则表达式
-        /// </summary>
-        public string Expression { get; set; } = null!;
+        public string ConditionExpression { get; set; } = null!;
 
         /// <summary>
         /// 计算表达式
         /// </summary>
         public string EvalExpression { get; set; } = null!;
-
-        /// <summary>
-        /// 规则表达式(RulesEngine)
-        /// </summary>
-        public string RuleExpression { get; set; } = null!;
     }
 
     /// <summary>
