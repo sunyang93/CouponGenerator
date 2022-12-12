@@ -51,6 +51,11 @@ namespace CouponGenerator.Data
         /// 计算表达式
         /// </summary>
         public string EvalExpression { get; set; } = null!;
+
+        /// <summary>
+        /// 规则表达式
+        /// </summary>
+        public string RuleExpression { get; set; } = null!;
     }
 
     /// <summary>

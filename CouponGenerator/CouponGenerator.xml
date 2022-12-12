@@ -78,7 +78,7 @@
         </member>
         <member name="P:CouponGenerator.Data.CouponRule.RuleExpression">
             <summary>
-            规则表达式(RulesEngine)
+            规则表达式
             </summary>
         </member>
         <member name="T:CouponGenerator.Data.CouponRuleType">

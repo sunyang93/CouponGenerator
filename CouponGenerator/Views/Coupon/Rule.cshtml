@@ -15,19 +15,53 @@
     });
     string schemaOutputJson = schema.ToJson();
     string schemaOutputYaml = schema.ToYaml();
+    string xmlSchema = @"<xs:schema attributeFormDefault=""unqualified"" elementFormDefault=""qualified"" targetNamespace=""http://schemas.datacontract.org/2004/07/CouponGenerator.Models"" xmlns:xs=""http://www.w3.org/2001/XMLSchema"">
+  <xs:element name=""Order"">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name=""Items"">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name=""OrderItem"">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name=""Product"">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element type=""xs:float"" name=""Price""/>
+                          <xs:element type=""xs:string"" name=""ProductCode""/>
+                          <xs:element type=""xs:string"" name=""StoreCode""/>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element type=""xs:float"" name=""Quantity""/>
+                    <xs:element type=""xs:float"" name=""TotalPrice""/>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element type=""xs:string"" name=""OrderNo""/>
+        <xs:element type=""xs:float"" name=""TotalPrice""/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>";
 }
 <link href="~/lib/jointjs/dist/joint.css" rel="stylesheet" />
-<form>
+<form class="needs-validation" novalidate>
     <div class="hstack gap-2 p-2 mb-3 rounded-2 border border-1 border-secondary shadow">
         <div>
             <h5 class="m-0"><strong>优惠券规则</strong></h5>
         </div>
         <div class="ms-auto">
-            <button type="button" class="btn btn-sm btn-primary"><i class="bi bi-check-circle"></i> 验证规则</button>
+            <input type="checkbox" class="btn-check" id="expressionToggleSwitch" autocomplete="off" onchange="expressionToggleSwitchChanged(this)">
+            <label class="btn btn-sm btn-outline-primary" for="expressionToggleSwitch">表达式</label>
         </div>
         <div class="vr"></div>
         <div>
-            <button type="submit" class="btn btn-sm btn-primary">提交</button>
+            <button type="button" class="btn btn-sm btn-primary" onclick="submitForm()"><i class="bi bi-check-circle"></i> 提交</button>
         </div>
     </div>
     <div class="row">
@@ -43,23 +77,81 @@
                     <label for="explain">描述 <i class="bi bi-textarea-t"></i></label>
                 </div>
                 <div class="form-floating mb-1">
-                    <select class="form-select text-primary" id="courtesyCardType">
-                        <option value="1">满减券</option>
-                        <option value="2">折扣券</option>
-                    </select>
-                    <label for="floatingSelect">优惠券类型<i class="bi bi-list-task"></i></label>
-                </div>
-                <div class="form-floating mb-1">
-                    <select class="form-select text-primary" id="targetObject">
+                    <select class="form-select text-primary" id="targetObject" onchange="targetObjectOnChange(this)">
                         <option value="1">订单</option>
                         <option value="2">店铺</option>
                         <option value="3">商品</option>
                     </select>
                     <label for="floatingSelect">适用对象 <i class="bi bi-list-task"></i></label>
                 </div>
+                <div class="form-floating mb-1" style="display:none" id="targetStoreCodeDiv"> 
+                    <select class="form-select text-primary" id="targetStoreCode" onchange="generateConditionExpression()">
+                        <option value="Store-A">店铺-A</option>
+                        <option value="Store-B">店铺-B</option>
+                        <option value="Store-C">店铺-C</option>
+                        <option value="Store-D">店铺-D</option>
+                        <option value="Store-E">店铺-E</option>
+                        <option value="Store-F">店铺-F</option>
+                    </select>
+                    <label for="floatingSelect">店铺编码 <i class="bi bi-list-task"></i></label>
+                </div>
+                <div class="form-floating mb-1" style="display:none" id="targetProductCodeDiv">
+                    <select class="form-select text-primary" id="targetProductCode" onchange="generateConditionExpression()">
+                        <option value="Product-A">商品A</option>
+                        <option value="Product-B">商品B</option>
+                        <option value="Product-C">商品C</option>
+                        <option value="Product-D">商品D</option>
+                        <option value="Product-E">商品E</option>
+                        <option value="Product-F">商品F</option>
+                    </select>
+                    <label for="floatingSelect">商品编码 <i class="bi bi-list-task"></i></label>
+                </div>               
                 <div class="form-floating mb-1">
-                    <input type="text" class="form-control text-primary" placeholder="Leave a comment here" id="targetObjectCode">
-                    <label for="targetObjectCode">适用对象的编码</label>
+                    <select class="form-select text-primary" id="courtesyCardType" onchange="courtesyCardTypeOnchange(this)">
+                        <option value="1">满减券</option>
+                        <option value="2">折扣券</option>
+                    </select>
+                    <label for="floatingSelect">优惠券类型<i class="bi bi-list-task"></i></label>
+                </div>
+                <div class="input-group mb-1" id="fullCouponReduction">
+                    <span class="input-group-text">满</span>
+                    <input id="full" type="number" min="0" class="form-control text-primary" onchange="generateConditionExpression()" required />
+                    <span class="input-group-text">减</span>
+                    <input id="reduction" type="number" min="0" class="form-control text-primary" required />
+                </div>
+                <div class="input-group mb-1" style="display:none" id="discountCoupon">
+                    <span class="input-group-text">优惠折扣</span>
+                    <input id="discount" type="number" min="0" max="100" class="form-control text-primary" required />
+                    <span class="input-group-text">%</span>
+                </div>
+                <div class="expression" style="display:none">
+                    <div class="form-floating mb-1">
+                        <textarea class="form-control text-primary" placeholder="Leave a comment here" id="conditionExpression" readonly></textarea>
+                        <label for="conditionExpression">表达式<i class="bi bi-textarea-t"></i></label>
+                    </div>
+                    <div class="mb-1 p-2 rounded-2 text-success alert-success">
+                        <div>
+                            <i class="bi bi-exclamation-circle"></i> 示例
+                        </div>
+                        <ol class="list-group">
+                            <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">订单消费金额满300</div>
+                                    <p class="text-break m-0 text-primary">
+                                        Order.TotalPrice >= 300
+                                    </p>
+                                </div>
+                            </li>
+                            <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                                <div class="ms-2 me-auto">
+                                    <div class="fw-bold">在'Store-A'店铺消费金额满200</div>
+                                    <p class="text-break m-0 text-primary">
+                                        Order.Items.Where(d => d.Product.StoreCode == "Store-A").Sum(TotalPrice) >= 200
+                                    </p>
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
                 </div>
                 <div class="p-2 mb-1 rounded-2 border border-1 border-secondary">
                     <h6>有效期</h6>
@@ -191,24 +283,26 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="form-floating mb-1">
-                            <textarea class="form-control text-primary" placeholder="Leave a comment here" id="monthExpression" readonly></textarea>
-                            <label for="monthExpression">表达式<i class="bi bi-textarea-t"></i></label>
-                        </div>
-                        <div class="mb-1 p-2 rounded-2 text-success alert-success">
-                            <div>
-                                <i class="bi bi-exclamation-circle"></i> 示例
+                        <div class="expression" style="display:none">
+                            <div class="form-floating mb-1">
+                                <textarea class="form-control text-primary" placeholder="Leave a comment here" id="monthExpression" readonly></textarea>
+                                <label for="monthExpression">表达式<i class="bi bi-textarea-t"></i></label>
                             </div>
-                            <ol class="list-group">
-                                <li class="list-group-item p-2 align-items-start text-success bg-transparent">
-                                    <div class="ms-2 me-auto">
-                                        <div class="fw-bold">每年的8月，9月，10月可用</div>
-                                        <p class="text-break m-0 text-primary">
-                                            DateTime.Now.Month == 8 || DateTime.Now.Month == 9 || DateTime.Now.Month == 10
-                                        </p>
-                                    </div>
-                                </li>
-                            </ol>
+                            <div class="mb-1 p-2 rounded-2 text-success alert-success">
+                                <div>
+                                    <i class="bi bi-exclamation-circle"></i> 示例
+                                </div>
+                                <ol class="list-group">
+                                    <li class="list-group-item p-2 align-items-start text-success bg-transparent">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">每年的8月，9月，10月可用</div>
+                                            <p class="text-break m-0 text-primary">
+                                                DateTime.Now.Month == 8 || DateTime.Now.Month == 9 || DateTime.Now.Month == 10
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
                         </div>
                     </div>
                     <div id="dayOfWeekCollapse" class="collapse show mb-1 p-2 rounded-2 border border-1 border-secondary">
@@ -259,24 +353,26 @@
                                 </label>
                             </div>
                         </div>
-                        <div class="form-floating mb-1">
-                            <textarea class="form-control text-primary" placeholder="Leave a comment here" id="weekExpression" readonly></textarea>
-                            <label for="weekExpression">表达式<i class="bi bi-textarea-t"></i></label>
-                        </div>
-                        <div class="mb-1 p-2 rounded-2 text-success alert-success">
-                            <div>
-                                <i class="bi bi-exclamation-circle"></i> 示例
+                        <div class="expression" style="display:none">
+                            <div class="form-floating mb-1">
+                                <textarea class="form-control text-primary" placeholder="Leave a comment here" id="weekExpression" readonly></textarea>
+                                <label for="weekExpression">表达式<i class="bi bi-textarea-t"></i></label>
                             </div>
-                             <ol class="list-group">
-                                <li class="list-group-item p-2 align-items-start text-success bg-transparent">
-                                    <div class="ms-2 me-auto">
-                                        <div class="fw-bold">每周的周六，周日可用</div>
-                                        <p class="text-break m-0 text-primary">
-                                            Enum.GetValues&lt;DayOfWeek&gt;().Where(dayOfWeek => dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday).Contains(DateTime.Now.DayOfWeek)
-                                        </p>
-                                    </div>
-                                </li>
-                            </ol>
+                            <div class="mb-1 p-2 rounded-2 text-success alert-success">
+                                <div>
+                                    <i class="bi bi-exclamation-circle"></i> 示例
+                                </div>
+                                 <ol class="list-group">
+                                    <li class="list-group-item p-2 align-items-start text-success bg-transparent">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">每周的周六，周日可用</div>
+                                            <p class="text-break m-0 text-primary">
+                                                Enum.GetValues&lt;DayOfWeek&gt;().Where(dayOfWeek => dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday).Contains(DateTime.Now.DayOfWeek)
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
                         </div>
                     </div>
                     <div id="timeOfDayCollapse" class="collapse show mb-1 p-2 rounded-2 border border-1 border-secondary">
@@ -315,34 +411,53 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="form-floating mb-1">
-                            <textarea class="form-control text-primary" placeholder="Leave a comment here" id="hourExpression" readonly></textarea>
-                            <label for="hourExpression">表达式<i class="bi bi-textarea-t"></i></label>
-                        </div>
-                        <div class="mb-1 p-2 rounded-2 text-success alert-success">
-                            <div>
-                                <i class="bi bi-exclamation-circle"></i> 示例
+                        <div class="expression" style="display:none">
+                            <div class="form-floating mb-1">
+                                <textarea class="form-control text-primary" placeholder="Leave a comment here" id="hourExpression" readonly></textarea>
+                                <label for="hourExpression">表达式<i class="bi bi-textarea-t"></i></label>
                             </div>
-                            <ol class="list-group">
-                                <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
-                                    <div class="ms-2 me-auto">
-                                        <div class="fw-bold">每天的18点到22点可用</div>
-                                        <p class="text-break m-0 text-primary">
-                                            DateTime.Now >= DateTime.Parse("18:00:00") && DateTime.Now <= DateTime.Parse("22:00:00")
-                                        </p>
-                                    </div>
-                                </li>
-                            </ol>
-                        </div>
+                            <div class="mb-1 p-2 rounded-2 text-success alert-success">
+                                <div>
+                                    <i class="bi bi-exclamation-circle"></i> 示例
+                                </div>
+                                <ol class="list-group">
+                                    <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">每天的18点到22点可用</div>
+                                            <p class="text-break m-0 text-primary">
+                                                DateTime.Now >= DateTime.Parse("18:00:00") && DateTime.Now <= DateTime.Parse("22:00:00")
+                                            </p>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>                      
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-12 col-md-6">
             <div class="p-2 mb-1 rounded-2 border border-1 border-secondary">
+                <h6>规则表达式</h6>
+                <div class="form-floating mb-1">
+                    <input type="text" class="form-control text-primary" value="@schema.Title" placeholder="Leave a comment here" id="ruleParameter" required>
+                    <label for="ruleParameter">参数</label>
+                </div>
+                <div class="expression" style="display:none">
+                    <div class="form-floating mb-1">
+                        <textarea rows="10" class="form-control text-primary" placeholder="Leave a comment here" id="ruleExpression" style="height:200px" required></textarea>
+                        <label for="ruleExpression">表达式 <i class="bi bi-textarea-t"></i></label>
+                    </div>
+                    <div class="alert alert-warning d-flex align-items-center m-0" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <div>
+                            你可以编写自定义表达式来创建更加复杂的规则
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-6 pt-2">
-                        <h6>规则配置</h6>
+                        <h6>领域对象模型</h6>
                     </div>
                     <div class="col-6 justify-content-end hstack gap-1">
                         <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" href="#jsonSchemaCollapse" title="JSON Schema">
@@ -376,11 +491,7 @@
                     <div class="row">
                         <a class="link-primary" href="https://www.w3schools.com/xml/schema_intro.asp" target="_blank">XSD</a>
                     </div>
-                    <div id="xmlSchema" class="w-100" style="height:500px">@ViewBag.XmlSchema</div>
-                </div>
-                <div class="form-floating mb-1">
-                    <input type="text" class="form-control text-primary" value="@schema.Title" placeholder="Leave a comment here" id="ruleParameter" required>
-                    <label for="ruleParameter">参数</label>
+                    <div id="xmlSchema" class="w-100" style="height:500px">@xmlSchema</div>
                 </div>
                 <div class="p-2 mb-1 rounded-2 border border-1 border-secondary">
                     <h6><strong>@schema.Description @schema.Title</strong></h6>
@@ -417,76 +528,6 @@
                         }
                     }
                 </div>
-                <div class="form-floating mb-1">
-                    <textarea class="form-control text-primary" placeholder="Leave a comment here" id="conditionExpression" required></textarea>
-                    <label for="conditionExpression">条件表达式<i class="bi bi-textarea-t"></i></label>
-                </div>
-                <div class="mb-1 p-2 rounded-2 text-success alert-success">
-                    <div>
-                        <i class="bi bi-exclamation-circle"></i> 示例
-                    </div>
-                    <ol class="list-group">
-                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">订单消费金额满300</div>
-                                <p class="text-break m-0 text-primary">
-                                    Order.TotalPrice >= 300
-                                </p>
-                            </div>
-                        </li>
-                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">在'Store-A'店铺消费金额满200</div>
-                                <p class="text-break m-0 text-primary">
-                                    Order.Items.Where(d => d.Product.StoreCode == "Store-A").Sum(TotalPrice) >= 200
-                                </p>
-                            </div>
-                        </li>
-                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">购买'Product-A'商品满2件</div>
-                                <p class="text-break m-0 text-primary">
-                                    Order.Items.Where(d => d.Product.ProductCode == "Product-A").Sum(Quantity) >= 2
-                                </p>
-                            </div>
-                        </li>
-                    </ol>
-                </div>
-                <div class="form-floating mb-1">
-                    <textarea class="form-control text-primary" placeholder="Leave a comment here" id="evalExpression" required></textarea>
-                    <label for="ruleExplain">计算表达式<i class="bi bi-textarea-t"></i></label>
-                </div>
-                <div class="mb-1 p-2 rounded-2 text-success alert-success">
-                    <div>
-                        <i class="bi bi-exclamation-circle"></i> 示例
-                    </div>
-                    <ol class="list-group">
-                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">订单打8折</div>
-                                <p class="text-break m-0 text-primary">
-                                    Order.TotalPrice * 0.8
-                                </p>
-                            </div>
-                        </li>
-                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">在'Store-A'店铺消费减10</div>
-                                <p class="text-break m-0 text-primary">
-                                    Order.TotalPrice - 10
-                                </p>
-                            </div>
-                        </li>
-                        <li class="list-group-item p-2 d-flex justify-content-between align-items-start text-success bg-transparent">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">购买'Product-A'商品打8折</div>
-                                <p class="text-break m-0 text-primary">
-                                    Order.TotalPrice - Order.Items.Where(d => d.Product.ProductCode == "Product-A").Sum(TotalPrice) * 0.8
-                                </p>
-                            </div>
-                        </li>
-                    </ol>
-                </div>
             </div>
         </div>
     </div>
@@ -494,7 +535,7 @@
 <!-- UML Offcanvas -->
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRightUML" aria-labelledby="offcanvasRightLabel">
     <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasRightLabel">依赖关系图</h5>
+        <h5 class="offcanvas-title" id="offcanvasRightLabel">领域对象依赖关系图</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
@@ -663,6 +704,68 @@
     });
     xmlEditor.setTheme("ace/theme/monokai");
     xmlEditor.session.setMode("ace/mode/xml");
+
+    function expressionToggleSwitchChanged(e) {
+        if (e.checked) {
+            $(".expression").show();
+        } else {
+            $(".expression").hide();
+        }
+    }
+
+    function targetObjectOnChange(e){
+        if(e.value==="1"){
+            $("#targetStoreCodeDiv").hide();
+            $("#targetProductCodeDiv").hide();
+        }else if(e.value==="2"){
+            $("#targetProductCodeDiv").hide();
+            $("#targetStoreCodeDiv").show();
+        }
+        else if(e.value==="3"){
+            $("#targetStoreCodeDiv").hide();
+            $("#targetProductCodeDiv").show();
+        }
+        generateConditionExpression();
+    }
+
+    function courtesyCardTypeOnchange(e){
+        if(e.value==="1"){
+            $("#discountCoupon").hide();
+            $("#fullCouponReduction").show();
+        }
+        else if(e.value==="2"){
+            $("#fullCouponReduction").hide();
+            $("#discountCoupon").show();
+        }
+        generateConditionExpression();
+    }
+
+    function generateConditionExpression(){
+        const targetObject=$("#targetObject").val();
+        const courtesyCardType = $("#courtesyCardType").val();
+        const full = parseFloat($("#full").val());
+        const reduction = parseFloat($("#reduction").val());
+        const discount=parseFloat($("#discount").val());
+        const ruleParameter=$("#ruleParameter").val().trim();
+        let expression='';
+        if(targetObject==="1"){
+            if(ruleParameter !== "" && !isNaN(full)){
+                expression = `${ruleParameter}.TotalPrice >= ${full}`;
+            }
+        }else if(targetObject==="2"){
+            if(ruleParameter !== "" && !isNaN(full)){
+                const targetStoreCode=$("#targetStoreCode").val();
+                expression = `${ruleParameter}.Items.Where(order => order.Product.StoreCode == "${targetStoreCode}").Sum(TotalPrice) >= ${full}`;
+            }
+        }
+        else if(targetObject==="3"){          
+            if (ruleParameter !== "" && !isNaN(full)) {
+                const targetProductCode=$("#targetProductCode").val();
+                expression = `${ruleParameter}.Items.Where(order => order.Product.ProductCode == "${targetProductCode}").Sum(TotalPrice) >= ${full}`;
+            }
+        }
+        $("#conditionExpression").val(expression);
+    }
   
     function termOfValidityChanged(e){
         var controls = $(".term-of-validity");
@@ -824,5 +927,22 @@
     function copyPropertyName(e) {
         $($(e).parent().children()[1]).select();
         document.execCommand("Copy");
+    }
+
+    function submitForm() {
+        let isValidity = true;
+        let forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms)
+            .forEach(function(form){
+                if(!form.checkValidity()){
+                    event.preventDefault();
+                    event.stopPropagation();
+                    isValidity = false;
+                }
+                form.classList.add('was-validated');
+            });
+        if(!isValidity){
+            return;
+        }
     }
 </script>

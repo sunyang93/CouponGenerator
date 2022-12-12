@@ -11,29 +11,16 @@ namespace CouponGenerator.Controllers
     [ApiController]
     public class CouponsController : ControllerBase
     {
-        [HttpGet]
-        public ActionResult<Order> GetCoupons()
+        [HttpPost("rules")]
+        public IActionResult CreateRule()
         {
-            var order = new Order
-            {
-                OrderNo="123fsfs",
-                TotalPrice = 12.24M,
-                Items = new List<OrderItem>()
-                {
-                    new OrderItem()
-                    {
-                        Product=new Product()
-                        {
-                            Price=12.2M,
-                            ProductCode="Fdss",
-                            StoreCode="fsfs"
-                        },
-                        Quantity=12.435M,
-                        TotalPrice=24343.454M
-                    }
-                }
-            };
-            return Ok(order);
+            return Ok();
+        }
+
+        [HttpGet("rules/{id}",Name ="GetConponRule")]
+        public IActionResult GetRule(string id)
+        {
+            return Ok();
         }
     }
 }
